@@ -8,17 +8,35 @@ Created on Mon May 20 20:07:12 2019
 import os
 import pandas as pd
 import auxiliary_functions as aux
+import logging
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 directory = os.path.join(base_path, 'data', 'TP')
 filenames = os.listdir(directory)
 
+if not os.path.isdir('processed'):
+    os.mkdir('processed')
+
 def load_from_file(fn):
+    """
+    Load and standardize the raw data file from directory data/TP.
+
+    The directory should contain all necessary raw data files parsed from the
+    entsoe transparency website.
+
+    Parameters
+    ----------
+    fn : str
+        filename
+
+    """
     #Note: some areas that are not countries as: "Italy_Sacodc" do not contain
     #any of the words in selection but are still removed because they're if
     #they're in the InAreaName they'll always be paired with an area containing
     #one of the selection in the OutAreaName and vice versa.
-    df = pd.read_csv('data/TP/'+fn, encoding = 'UTF-16', sep="\t",\
+    logging.info(f'Loading data from {fn}')
+    path = os.path.join(directory, fn)
+    df = pd.read_csv(path, encoding = 'UTF-16', sep="\t",\
                      parse_dates=['DateTime'], index_col='DateTime')
 
     #Remove all area names containing the words in selection
@@ -41,5 +59,5 @@ rawcbf =  df.reset_index()\
                          values='FlowValue')
 
 cbf = aux.directed_cbf(rawcbf)
-cbf.to_csv('processed/cbf_loaded.csv')
+cbf.to_csv(os.path.join('processed', 'cbf_loaded.csv'))
 
