@@ -1,0 +1,4 @@
+data
+processed/*
+intermediate_data/*
+__pycache__
